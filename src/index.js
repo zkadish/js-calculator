@@ -1,87 +1,128 @@
 import '../sass/main.scss';
-console.log('calculator!')
+import { add, subtract, multiply, divide, equals } from './arthimetic';
+
+console.log('calculator!');
 
 const output = document.getElementById('calc-output');
 const btns = document.querySelectorAll('.btn-container__btn');
-let firstNum = null;
 
-function multiply (x, y) {
-    return x * y;
+const calcState = {
+  firstNum: null,
+  secondNum: null,
+  secNumFlag: false,
+  equalsFlag: false,
+  arithmetic: null,
+};
+
+function calcNumbers(num) {
+  console.log(num, calcState.secNumFlag, calcState.equalsFlag);
+  if (calcState.equalsFlag) {
+    output.innerHTML = num;
+    calcState.equalsFlag = false;
+    return;
+  }
+
+  if (calcState.secNumFlag) {
+    output.innerHTML = num;
+    calcState.secNumFlag = false;
+    return;
+  }
+
+  if (output.innerHTML === '0' && num === '.') {
+    output.innerHTML += num;
+    return;
+  }
+
+  if (output.innerHTML === '0') {
+    output.innerHTML = num;
+    return;
+  }
+  // var Number = Number + num;
+  calcState.equalsFlag = false;
+  output.innerHTML += num;
 }
 
-function add (x,y) {
-    return x + y;
+function calcFunctions(func) {
+  console.log(func);
+
+  switch (func) {
+    case '=':
+      if (calcState.equalsFlag === false) {
+        calcState.secondNum = output.innerHTML;
+      } else {
+        console.log('calcState.equalsFlag: true');
+        calcState.firstNum = output.innerHTML;
+        calcState.secNumFlag = true;
+      }
+
+      equals(calcState, output);
+
+      calcState.equalsFlag = true;
+      return;
+    case '.':
+      if (!output.innerHTML.includes('.')) {
+        calcNumbers(func);
+      }
+      break;
+    case 'AC':
+      output.innerHTML = '0';
+      calcState.firstNum = false;
+      calcState.secNumFlag = false;
+      calcState.arithmetic = null;
+      calcState.equalsFlag = false;
+      break;
+    case '+':
+      if (!calcState.equalsFlag) {
+        calcState.secondNum = output.innerHTML;
+        equals(calcState, output);
+      }
+      calcState.firstNum = output.innerHTML;
+      calcState.secNumFlag = true;
+      calcState.arithmetic = add;
+      break;
+    case '\u2212':
+      if (!calcState.equalsFlag) {
+        calcState.secondNum = output.innerHTML;
+        equals(calcState, output);
+      }
+      calcState.firstNum = output.innerHTML;
+      calcState.secNumFlag = true;
+      calcState.arithmetic = subtract;
+      break;
+    case 'x':
+      if (!calcState.equalsFlag) {
+        calcState.secondNum = output.innerHTML;
+        equals(calcState, output);
+      }
+      calcState.firstNum = output.innerHTML;
+      calcState.secNumFlag = true;
+      calcState.arithmetic = multiply;
+      break;
+    case '\u00F7':
+      if (!calcState.equalsFlag) {
+        calcState.secondNum = output.innerHTML;
+        equals(calcState, output);
+      }
+      calcState.firstNum = output.innerHTML;
+      calcState.secNumFlag = true;
+      calcState.arithmetic = divide;
+      break;
+    default:
+      break;
+  }
+
+  calcState.equalsFlag = false;
 }
 
-let calcState = {
-    numFlag: false,
-    arithmetic: null,
-}
-
-for (var i = 0;i < btns.length;i++) {
-    btns[i].onclick = function (e) {
-        if (isNaN(e.target.innerHTML)) {
-            calcFunctions(e.target.innerHTML);
-        } else {
-            calcNumbers(e.target.innerHTML);
-        }
+for (let i = 0; i < btns.length; i += 1) {
+  btns[i].onclick = function onclick(e) {
+    if (isNaN(e.target.innerHTML)) {
+      calcFunctions(e.target.innerHTML);
+    } else {
+      calcNumbers(e.target.innerHTML);
     }
+  };
 }
 
-function calcNumbers (num) {
-    console.log(num)
-    if (calcState.numFlag) {
-        output.innerHTML = num;
-        calcState.numFlag = false;
-        return;
-    }
-    
-    if (output.innerHTML === '0' && num === '.') {
-        output.innerHTML = output.innerHTML + num;
-        return;
-    }
-    
-    if (output.innerHTML === '0') {
-        output.innerHTML = num;
-        return;
-    }
-    // var Number = Number + num;
-    output.innerHTML = output.innerHTML + num;
-}
 
-function calcFunctions (func) {
-    console.log(func)
-    switch (func) {
-        case '.':
-            if (!output.innerHTML.includes('.')) {
-                calcNumbers(func);
-            }
-            break;
-        case 'AC':
-            output.innerHTML = '0';
-            break;
-        case '+':
-            firstNum = output.innerHTML;
-            calcState.numFlag = true;
-            calcState.arithmetic = add;
-            break;
-        case 'x':
-            firstNum = output.innerHTML;
-            calcState.numFlag = true;
-            calcState.arithmetic = multiply;
-            break;
-        case '\u00F7':
-            console.log('division');
-        case '=':
-            equalsFn(calcState.arithmetic);
-            break;
-        default:
-            break;
-    }
-    
-}
-
-function equalsFn (arithmetic) {
-    output.innerHTML = arithmetic(Number(firstNum), Number(output.innerHTML));
-}
 
